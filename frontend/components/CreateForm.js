@@ -31,7 +31,7 @@ export default function CreateForm({ usuario, alCrear }) {
         precio: parseFloat(formData.precio),
       };
 
-      await axios.post("http://127.0.0.1:8000/trayectos", datosEnviar);
+      await axios.post("https://joinmytrip-backend.onrender.com/trayectos", datosEnviar);
       alert("✅ ¡Viaje publicado con éxito!");
       
       setFormData({

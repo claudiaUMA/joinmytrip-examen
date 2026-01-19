@@ -56,7 +56,7 @@ export default function Map({ trayectos, usuario }) {
     if (!confirm("🚨 ¿Seguro que quieres ELIMINAR este viaje? Esta acción no se puede deshacer.")) return;
 
     try {
-      await axios.delete(`http://127.0.0.1:8000/trayectos/${trayectoId}`);
+      await axios.delete(`https://joinmytrip-backend.onrender.com/trayectos/${trayectoId}`);
       alert("🗑️ Viaje eliminado correctamente.");
       window.location.reload(); // Recargamos para que desaparezca la chincheta
     } catch (error) {

@@ -15,7 +15,7 @@ export default function Dashboard({ session }) {
   // 1. Carga inicial de TODOS los trayectos
   const cargarTrayectos = async () => {
     try {
-      const response = await axios.get("http://127.0.0.1:8000/trayectos");
+      const response = await axios.get("https://joinmytrip-backend.onrender.com/trayectos");
       setTrayectos(response.data);
     } catch (error) {
       console.error("Error cargando trayectos:", error);
