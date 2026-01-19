@@ -29,6 +29,55 @@ def obtener_trayectos():
     datos = trayectos_collection.find().sort("fecha_hora", 1)
     return trayectos_schema(datos)
 
+# --- FUNCIONALIDAD AVANZADA (EXAMEN PARCIAL 2) ---
+
+@app.get("/trayectos/compartidos")
+def buscar_trayectos_compartidos(email1: str, email2: str):
+    """
+    Busca trayectos donde dos personas han coincidido, ya sea:
+    1. Uno conduce y el otro es pasajero.
+    2. Ambos son pasajeros en el mismo viaje.
+    """
+    
+    # PASO 1: Obtener todos los IDs de trayectos donde 'email1' estuvo presente
+    # A) Como conductor
+    ids_1 = set() # Usamos un conjunto (set) para no tener duplicados
+    trayectos_conductor_1 = trayectos_collection.find({"conductor": email1})
+    for t in trayectos_conductor_1:
+        ids_1.add(str(t["_id"]))
+        
+    # B) Como pasajero
+    reservas_1 = pasajeros_collection.find({"id_pasajero": email1})
+    for r in reservas_1:
+        ids_1.add(r["id_trayecto"])
+
+    # PASO 2: Obtener todos los IDs de trayectos donde 'email2' estuvo presente
+    ids_2 = set()
+    # A) Como conductor
+    trayectos_conductor_2 = trayectos_collection.find({"conductor": email2})
+    for t in trayectos_conductor_2:
+        ids_2.add(str(t["_id"]))
+    
+    # B) Como pasajero
+    reservas_2 = pasajeros_collection.find({"id_pasajero": email2})
+    for r in reservas_2:
+        ids_2.add(r["id_trayecto"])
+
+    # PASO 3: Calcular la INTERSECCIÓN (Los IDs que están en ambos conjuntos)
+    ids_compartidos = ids_1.intersection(ids_2)
+    
+    if not ids_compartidos:
+        return [] # No han compartido coche nunca
+
+    # PASO 4: Recuperar los datos completos de esos trayectos
+    # Convertimos los IDs de string a ObjectId para buscar en Mongo
+    object_ids = [ObjectId(id_str) for id_str in ids_compartidos]
+    
+    # Buscamos en la base de datos usando el operador $in (buscar varios IDs a la vez)
+    resultados = trayectos_collection.find({"_id": {"$in": object_ids}})
+    
+    return trayectos_schema(resultados)
+
 # 2. Obtener un trayecto por ID
 @app.get("/trayectos/{id}")
 def obtener_trayecto(id: str):
@@ -108,3 +157,4 @@ def buscar_por_origen(ciudad: str):
         "plazas": {"$gt": 0}
     }).sort("fecha_hora", 1)
     return trayectos_schema(datos)
+
